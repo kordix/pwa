@@ -1,36 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Todo List using IndexedDB</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moja PWA</title>
+    <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
-    <h1>Todo List</h1>
-    <input type="text" id="todoItem" placeholder="Enter a new todo">
-    <button onclick="addTodo()">Add Todo</button>
+    <h1>Hello, World!</h1>
 
-    <ul id="todoList"></ul>
-
-    <script src="todo.js"></script>
-
+    <!-- Dodaj ten kod na końcu sekcji <body> w pliku index.html -->
     <script>
-        if (1 == 1) {
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('service-worker.js')
-                        .then(registration => {
-                            console.log('Service Worker registered with scope:', registration.scope);
-                            document.write('Service Worker registered with scope');
-                        })
-                        .catch(error => {
-                            console.error('Service Worker registration failed:', error);
-                            document.write('Service Worker registration failed:'+ error)
-                        });
-                });
-            }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
         }
     </script>
+
+
 </body>
 
 </html>
