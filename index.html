@@ -1,32 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moja PWA</title>
-    <link rel="manifest" href="manifest.json">
+    <title>Todo List using IndexedDB</title>
 </head>
 
 <body>
-    <h1>Hello, World!</h1>
+    <h1>Todo List</h1>
+    <input type="text" id="todoItem" placeholder="Enter a new todo">
+    <button onclick="addTodo()">Add Todo</button>
 
-    <!-- Dodaj ten kod na końcu sekcji <body> w pliku index.html -->
+    <p id="message"></p>
+
+    <ul id="todoList"></ul>
+
+    <script src="todo.js"></script>
+
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registered with scope:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.error('Service Worker registration failed:', error);
-                    });
-            });
+        if (1 == 1) {
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('service-worker.js')
+                        .then(registration => {
+                            console.log('Service Worker registered with scope:', registration.scope);
+                            document.querySelector('#message').innerHTML = 'Service Worker registered with scope:'
+                        })
+                        .catch(error => {
+                            console.error('Service Worker registration failed:', error);
+                            document.querySelector('#message').innerHTML = 'Service Worker registration failed:' + error;
+                        });
+                });
+            }
         }
     </script>
-
-
 </body>
 
 </html>
