@@ -11,7 +11,32 @@
 <body>
     <h1>Hello, World!</h1>
 
-    <!-- Dodaj ten kod na końcu sekcji <body> w pliku index.html -->
+    <!-- Dodaj przycisk do dodawania na ekran główny -->
+    <button id="addToHome">Dodaj do ekranu głównego</button>
+
+    <script>
+        // Kod obsługujący dodawanie aplikacji na ekran główny
+        const addToHomeButton = document.getElementById('addToHome');
+
+        addToHomeButton.addEventListener('click', () => {
+            if ('beforeinstallprompt' in window) {
+                const installPromptEvent = window.beforeinstallprompt;
+                installPromptEvent.prompt();
+
+                installPromptEvent.userChoice.then(choiceResult => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Użytkownik zaakceptował instalację');
+                    } else {
+                        console.log('Użytkownik anulował instalację');
+                    }
+                });
+            } else {
+                console.log('Funkcja dodawania na ekran główny niedostępna');
+            }
+        });
+    </script>
+
+    <!-- Rejestracja Service Workera -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -25,8 +50,6 @@
             });
         }
     </script>
-
-
 </body>
 
 </html>
