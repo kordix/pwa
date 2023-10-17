@@ -73,9 +73,13 @@
 
         <br>
         <br>
-        <button @click="downloadData">Ściągnij</button>
+        <button @click="downloadData" v-if="isOnline">Ściągnij</button>
 
-        <button @click="pushData">Synchronizuj</button>
+        <button @click="pushData" v-if="isOnline">Synchronizuj</button>
+
+        
+
+        <p>wersja 17.10 17:04</p>
 
     </div>
 
@@ -103,6 +107,7 @@
         Vue.createApp({
             data() {
                 return {
+                    isOnline: navigator.onLine,
                     title: '',
                     description: '',
                     danebase: [],
