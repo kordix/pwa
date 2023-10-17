@@ -159,7 +159,7 @@
                 async downloadData() {
                     this.czyszczenie('data');
                     let self = this;
-                    await axios.get('api/read.php').then((res) => self.dupa = res.data);
+                    await axios.get('api/read2.php').then((res) => self.dupa = res.data);
 
                     for (let i = 0; i < this.dupa.length; i++) {
                         let elem = this.dupa[i];
