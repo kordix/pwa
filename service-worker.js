@@ -24,6 +24,13 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+    const requestUrl = new URL(event.request.url);
+
+    // Wyklucz z cachowania endpoint '/api/read2.php'
+    if (requestUrl.pathname === '/api/read2.php') {
+        return fetch(event.request);
+    }
+
     event.respondWith(
         caches.match(event.request)
             .then(response => {
