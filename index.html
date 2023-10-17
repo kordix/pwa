@@ -76,10 +76,11 @@
         <button @click="downloadData" v-if="isOnline">Ściągnij</button>
 
         <button @click="pushData" v-if="isOnline">Synchronizuj</button>
+        <p v-else>JESTEŚ OFFLINE</p>
 
         
 
-        <p>wersja 17.10 17:04</p>
+        <p>wersja 17.10 17:10</p>
 
     </div>
 
@@ -213,6 +214,12 @@
                     };
                 },
                 async pushData() {
+                    if(!navigator.onLine){
+                        this.isOnline = false;
+                        return;
+                    }else{
+                        this.isOnline = true;
+                    }
                     for (let i = 0; i < this.dane.length; i++) {
                         let elem = this.dane[i];
                         await axios.post('api/add.php', { title: elem.title, description: elem.description })
