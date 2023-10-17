@@ -1,6 +1,8 @@
 const todoItemInput = document.getElementById('todoItem');
 const todoList = document.getElementById('todoList');
 
+let todosmysql = [];
+
 let db;
 
 const openDB = () => {
@@ -55,5 +57,10 @@ const displayTodos = () => {
         }
     };
 };
+
+
+function load(){
+    fetch('api/read.php').then((res) => res.json()).then((res) => todosmysql = res)
+}
 
 openDB();

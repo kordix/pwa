@@ -1,22 +1,235 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Todo List using IndexedDB</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline App</title>
 </head>
 
 <body>
-    <h1>Todo List</h1>
-    <input type="text" id="todoItem" placeholder="Enter a new todo">
-    <button onclick="addTodo()">Add Todo</button>
+    <h1>Offline App</h1>
 
-    <p id="message"></p>
 
-    <ul id="todoList"></ul>
 
-    <script src="todo.js"></script>
+    <div id="app">
+
+        <div>
+            <label for="">Tytuł</label>
+            <input type="text" v-model="title">
+
+            <label for="">Opis</label>
+            <input type="text" v-model="description">
+            <button @click="addDataForm">Dodaj dane</button>
+        </div>
+
+        <br><br>
+
+        <span>Dane:</span>
+        <table style="color:red">
+            <tr v-for="elem in danebase">
+                <td>
+                    {{elem.title}}
+                </td>
+                <td>
+                    {{elem.description}}
+                </td>
+            </tr>
+        </table>
+
+
+        <span>
+
+        </span>
+        <table style="opacity:0.6">
+            <tr>
+                <td>
+                    tytuł
+                </td>
+                <td>
+                    Opis
+                </td>
+            </tr>
+            <tr v-for="elem in dane">
+                <td>
+                    {{elem.title}}
+                </td>
+                <td>
+                    {{elem.description}}
+                </td>
+            </tr>
+        </table>
+
+
+
+        <br>
+        <br>
+        <br>
+        <button @click="czyszczenie('data')">Czyszczenie</button>
+        <button @click="czyszczenie('data2')">Czyszczenie 2</button>
+
+        <br>
+        <br>
+        <button @click="downloadData">Ściągnij</button>
+
+        <button @click="pushData">Synchronizuj</button>
+
+        {{dupa}}
+
+
+    </div>
+
+    <!-- <button onclick="downloadData()">Pobierz dane z MySQL</button>
+    <button onclick="addData2()">Dodaj dane do IndexedDB</button>
+    <button onclick="uploadData()">Wyślij dane do MySQL</button>
+    <button onclick="czyszczenie()">Czyszczenie</button>
+
+    <p>Dane z mysql:</p>
+    <ul id="dataList"></ul>
+
+    <p>Dane do dodania:</p>
+    <ul id="dataList2"></ul> -->
+
+    <!-- <script src="app.js"></script> -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.2/axios.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
     <script>
+        let db;
+
+        Vue.createApp({
+            data() {
+                return {
+                    title: '',
+                    description: '',
+                    danebase: [],
+                    dane: [],
+                    dupa: []
+                }
+            },
+            mounted() {
+                let self = this;
+                const request = indexedDB.open('offline_database', 3);
+
+                request.onerror = function (event) {
+                    console.log('Błąd podczas otwierania bazy danych:', event.target.error);
+                };
+
+                request.onupgradeneeded = function (event) {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains('data')) {
+                        db.createObjectStore('data', { autoIncrement: true, keyPath: 'id' });
+                    }
+
+                    if (!db.objectStoreNames.contains('data2')) {
+                        db.createObjectStore('data2', { autoIncrement: true, keyPath: 'id2' });
+                    }
+
+                };
+
+                request.onsuccess = function (event) {
+                    db = event.target.result;
+                    console.log('Połączono z bazą danych.');
+                    self.displayData();
+                    self.displayBaseData();
+                };
+            },
+            methods: {
+                displayBaseData() {
+                    this.danebase = [];
+                    let self = this;
+                    console.log('displaydata');
+                    const transaction = db.transaction(['data'], 'readonly');
+                    const store = transaction.objectStore('data');
+
+                    const request = store.openCursor();
+
+                    request.onsuccess = function (event) {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            self.danebase.push(cursor.value)
+                            cursor.continue();
+                        } else {
+                            console.log('Brak więcej danych.');
+                        }
+                    };
+
+                },
+                async downloadData() {
+                    this.czyszczenie('data');
+                    let self = this;
+                    await axios.get('api/read.php').then((res) => self.dupa = res.data);
+
+                    for (let i = 0; i < this.dupa.length; i++) {
+                        let elem = this.dupa[i];
+
+                        this.addData('data', elem.title, elem.description);
+                    }
+
+                    this.displayBaseData();
+                },
+                displayData(baza) {
+                    this.dane = [];
+                    let self = this;
+                    const transaction = db.transaction(['data2'], 'readonly');
+                    const store = transaction.objectStore('data2');
+
+                    const request = store.openCursor();
+
+                    request.onsuccess = function (event) {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            self.dane.push(cursor.value)
+                            cursor.continue();
+                        } else {
+                            console.log('Brak więcej danych.');
+                        }
+                    };
+                },
+                addDataForm() {
+                    this.addData('data2', this.title, this.description);
+                },
+                addData(base, title, description) {
+                    let self = this;
+                    const transaction = db.transaction([base], 'readwrite');
+                    const store = transaction.objectStore(base);
+                    const item = {
+                        title: title,
+                        description: description
+                    };
+
+                    const request = store.add(item);
+
+                    request.onsuccess = function () {
+                        console.log('Dane zostały dodane do IndexedDB.');
+                        self.displayData('data2');
+                    };
+                },
+                async pushData() {
+                    for (let i = 0; i < this.dane.length; i++) {
+                        let elem = this.dane[i];
+                        await axios.post('api/add.php', { title: elem.title, description: elem.description })
+                    }
+
+                    this.czyszczenie('data2');
+                    this.downloadData();
+
+
+                },
+                czyszczenie(baza) {
+                    const transaction = db.transaction([baza], 'readwrite');
+                    const store = transaction.objectStore(baza);
+                    store.clear();
+                    // this.downloadData();
+
+                }
+
+
+
+            }
+        }).mount('#app')
+
         if (1 == 1) {
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
