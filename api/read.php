@@ -1,5 +1,8 @@
 <?php
 
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+
+
 
 $dbh = new PDO('mysql:host=localhost;dbname=pwa', 'root', '');
 
