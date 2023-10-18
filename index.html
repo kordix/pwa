@@ -18,11 +18,16 @@
     <div id="app">
 
         <div>
-            <label for="">Tytuł</label>
-            <input type="text" v-model="title">
-
-            <label for="">Opis</label>
-            <input type="text" v-model="description">
+            <br>
+            <div style="margin-bottom:5px">
+                <label for="" style="width:50px;display:inline-block">Tytuł</label>
+                <input type="text" v-model="title" >
+            </div>
+     
+            <div style="margin-bottom:5px">
+                <label style="width:50px;display:inline-block">Opis</label>
+                <input type="text" v-model="description">
+            </div>
             <button @click="addDataForm">Dodaj dane</button>
         </div>
 
@@ -61,28 +66,23 @@
                     {{elem.description}}
                 </td>
             </tr>
-        </table>
-
-
-
+        </table>   
         <br>
         <br>
-        <br>
-        <button @click="czyszczenie('data')">Czyszczenie</button>
-        <button @click="czyszczenie('data2')">Czyszczenie 2</button>
+        <button @click="pushData">Synchronizuj</button>
+        <p v-if="!isOnline">JESTEŚ OFFLINE</p>
 
-        <br>
-        <br>
-        <button @click="downloadData" v-if="isOnline">Ściągnij</button>
+        <p v-if="updateprompt">ODŚWIEŻ STRONĘ, ODPALI SIĘ NOWA WERSJA APLIKACJI</p>
 
-        <button @click="pushData" v-if="isOnline">Synchronizuj</button>
-        <p v-else>JESTEŚ OFFLINE</p>
 
-        
 
-        <p>wersja 17.10 17:10</p>
+        <p>wersja 18.10 15:55</p>
+
+        <button @click="checkForUpdate">Aktualizuj aplikację</button>
 
     </div>
+
+
 
     <!-- <button onclick="downloadData()">Pobierz dane z MySQL</button>
     <button onclick="addData2()">Dodaj dane do IndexedDB</button>
@@ -113,7 +113,8 @@
                     description: '',
                     danebase: [],
                     dane: [],
-                    dupa: []
+                    dupa: [],
+                    updateprompt:false
                 }
             },
             mounted() {
@@ -121,7 +122,7 @@
                 const request = indexedDB.open('offline_database', 3);
 
                 request.onerror = function (event) {
-                    console.log('Błąd podczas otwierania bazy danych:', event.target.error);
+            
                 };
 
                 request.onupgradeneeded = function (event) {
@@ -138,7 +139,7 @@
 
                 request.onsuccess = function (event) {
                     db = event.target.result;
-                    console.log('Połączono z bazą danych.');
+                   
                     self.displayData();
                     self.displayBaseData();
                 };
@@ -147,7 +148,7 @@
                 displayBaseData() {
                     this.danebase = [];
                     let self = this;
-                    console.log('displaydata');
+                 
                     const transaction = db.transaction(['data'], 'readonly');
                     const store = transaction.objectStore('data');
 
@@ -159,7 +160,7 @@
                             self.danebase.push(cursor.value)
                             cursor.continue();
                         } else {
-                            console.log('Brak więcej danych.');
+                            
                         }
                     };
 
@@ -191,7 +192,7 @@
                             self.dane.push(cursor.value)
                             cursor.continue();
                         } else {
-                            console.log('Brak więcej danych.');
+                           
                         }
                     };
                 },
@@ -213,11 +214,21 @@
                         self.displayData('data2');
                     };
                 },
+                checkForUpdate() {
+                    console.log('checkForUpdate');
+                    // Logic to communicate with the service worker and trigger an update check
+                    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                        console.log('odpala ta kopara');
+                        navigator.serviceWorker.controller.postMessage({ action: 'checkForUpdate' });
+                    }
+
+                    this.updateprompt = true;
+                },
                 async pushData() {
-                    if(!navigator.onLine){
+                    if (!navigator.onLine) {
                         this.isOnline = false;
                         return;
-                    }else{
+                    } else {
                         this.isOnline = true;
                     }
                     for (let i = 0; i < this.dane.length; i++) {
@@ -234,7 +245,7 @@
                     const transaction = db.transaction([baza], 'readwrite');
                     const store = transaction.objectStore(baza);
                     store.clear();
-    
+
                 }
 
 
@@ -247,17 +258,18 @@
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('service-worker.js')
                         .then(registration => {
-                            console.log('Service Worker registered with scope:', registration.scope);
+                         
                             document.querySelector('#message').innerHTML = 'Service Worker registered with scope:'
                         })
                         .catch(error => {
-                            console.error('Service Worker registration failed:', error);
+                          
                             document.querySelector('#message').innerHTML = 'Service Worker registration failed:' + error;
                         });
                 });
             }
         }
     </script>
+
 </body>
 
 </html>

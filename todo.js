@@ -10,7 +10,7 @@ const openDB = () => {
     const request = window.indexedDB.open(dbName, 1);
 
     request.onerror = (event) => {
-        console.log('Error opening IndexedDB:', event.target.errorCode);
+        
     };
 
     request.onsuccess = (event) => {

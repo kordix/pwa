@@ -1,4 +1,4 @@
-const CACHE_NAME = 'my-pwa-cache-v4';
+const CACHE_NAME = 'my-pwa-cache-v5';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -6,6 +6,7 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
+    console.log('install z service worker');
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => cache.addAll(urlsToCache))
@@ -13,6 +14,7 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
+    console.log('activate z service worker');
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
@@ -24,6 +26,7 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+    console.log('fetch z service worker');
     const requestUrl = new URL(event.request.url);
 
     // Wyklucz z cachowania endpoint '/api/read2.php'
@@ -57,3 +60,33 @@ self.addEventListener('fetch', event => {
             })
     );
 });
+
+
+function checkForUpdate() {
+    console.log('check for update service worker');
+
+}
+
+
+self.addEventListener('message', event => {
+    console.log('message');
+    clearCache();
+    self.registration.unregister()
+        .then(() => {
+            console.log('odpala ta kopera service worker');
+            // Reload the page to apply the update
+           
+        });
+});
+
+
+function clearCache() {
+    console.log('clearcache');
+    caches.keys().then(cacheNames => {
+        return Promise.all(
+            cacheNames.map(cacheName => {
+                return caches.delete(cacheName);
+            })
+        );
+    });
+}
